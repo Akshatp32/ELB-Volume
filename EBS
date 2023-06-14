@@ -1,0 +1,28 @@
+# create instance 
+resource "aws_instance" "test" {
+  ami                    = var.instance_ami
+  instance_type          = var.server_instance
+  subnet_id              = aws_subnet.subnet1.id
+  vpc_security_group_ids = [aws_security_group.Mysec_grp.id]
+  key_name               = aws_key_pair.mykey.key_name
+
+  tags = {
+    "Name" = "private"
+  }
+}
+
+# Create EBS volume
+resource "aws_ebs_volume" "EBS" {
+  availability_zone = "ap-south-1a"
+  size              = 10
+  tags = {
+    Name = "Hello_User"
+  }
+}
+
+# Attach the EBS volume to an EC2 instance
+resource "aws_volume_attachment" "ebs_attachment" {
+  device_name = "/dev/sdf"
+  volume_id   = aws_ebs_volume.EBS.id
+  instance_id = aws_instance.test.id
+}
